@@ -49,6 +49,18 @@ public enum Piece {
 		};
 	}
 
+	public boolean isOpponentOf(Piece other) {
+		return this.isWhite() && other.isBlack() || this.isBlack() && other.isWhite();
+	}
+
+	public boolean isPawn() {
+		return this.equals(Piece.WhitePawn) || this.equals(Piece.BlackPawn);
+	}
+
+	public boolean isNone() {
+		return this.equals(Piece.None);
+	}
+
 	public char toFenChar() {
 		return switch (this) {
 			case WhiteKing -> 'K';
@@ -69,18 +81,18 @@ public enum Piece {
 
 	public static Piece fenCharToPiece(char c) {
 		return switch (c) {
-			case 'K'-> WhiteKing;
-			case 'Q'-> WhiteQueen;
-			case 'R'-> WhiteRook;
-			case 'B'-> WhiteBishop;
-			case 'N'-> WhiteKnight;
-			case 'P'-> WhitePawn;
-			case 'k'-> BlackKing;
-			case 'q'-> BlackQueen;
-			case 'r'-> BlackRook;
-			case 'b'-> BlackBishop;
-			case 'n'-> BlackKnight;
-			case 'p'-> BlackPawn;
+			case 'K' -> WhiteKing;
+			case 'Q' -> WhiteQueen;
+			case 'R' -> WhiteRook;
+			case 'B' -> WhiteBishop;
+			case 'N' -> WhiteKnight;
+			case 'P' -> WhitePawn;
+			case 'k' -> BlackKing;
+			case 'q' -> BlackQueen;
+			case 'r' -> BlackRook;
+			case 'b' -> BlackBishop;
+			case 'n' -> BlackKnight;
+			case 'p' -> BlackPawn;
 			default -> None;
 		};
 	}
