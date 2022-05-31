@@ -2,6 +2,7 @@ package org.main;
 
 import org.main.pieces.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Board {
@@ -41,7 +42,7 @@ public class Board {
 		return board[position.fileIndex()][position.rankIndex()];
 	}
 
-	List<Move> getMoves(Position position) {
+	LinkedList<Move> getMoves(Position position) {
 		return switch (board[position.fileIndex()][position.rankIndex()]) {
 			case WhiteKing, BlackKing -> King.getMoves(this, position);
 			case WhiteQueen, BlackQueen -> Queen.getMoves(this, position);
@@ -49,13 +50,31 @@ public class Board {
 			case WhiteBishop, BlackBishop -> Bishop.getMoves(this, position);
 			case WhiteKnight, BlackKnight -> Knight.getMoves(this, position);
 			case WhitePawn, BlackPawn -> Pawn.getMoves(this, position);
-			default -> List.of();
+			default -> new LinkedList<Move>();
 		};
+	}
+
+	LinkedList<Move> getAllMoves(){
+		LinkedList<Move> moves = new LinkedList<Move>();
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				moves.addAll(getMoves(new Position(i,j)));
+			}
+		}
+		return moves;
 	}
 
 
 	public Board(String fen) {
 		throw new UnsupportedOperationException("Board::Board(String fen) is not yet implemented");
+	}
+
+	boolean isValid(Move move){
+		return getAllMoves().contains(move);
+	}
+
+	public Board(Board oldBoard, Move move) {
+		throw new UnsupportedOperationException("Board::Board(Board oldBoard, Move move) is not yet implemented");
 	}
 
 	String getFen() {

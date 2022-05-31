@@ -4,6 +4,7 @@ import org.main.Board;
 import org.main.Move;
 import org.main.Position;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Knight {
@@ -13,7 +14,7 @@ public class Knight {
 			new Position(-2, -1), new Position(2, -1),
 			new Position(-1, -2), new Position(1, -2));
 
-	public static List<Move> getMoves(Board board, Position position) {
+	public static LinkedList<Move> getMoves(Board board, Position position) {
 		return null;
 	}
 }

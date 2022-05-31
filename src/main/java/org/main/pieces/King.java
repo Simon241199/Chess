@@ -4,6 +4,7 @@ import org.main.Board;
 import org.main.Move;
 import org.main.Position;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class King {
@@ -12,7 +13,7 @@ public class King {
 			new Position(-1, 0),/*new Position(      0,         0),*/ new Position(1, 0),
 			new Position(-1, -1), new Position(0, -1), new Position(1, -1));
 
-	public static List<Move> getMoves(Board board, Position position) {
+	public static LinkedList<Move> getMoves(Board board, Position position) {
 		return null;
 	}
 }
