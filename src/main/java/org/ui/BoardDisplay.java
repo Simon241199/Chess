@@ -30,8 +30,6 @@ public class BoardDisplay extends JPanel implements IBoardDisplay, MouseListener
 				field[j][i].setVerticalAlignment(JLabel.CENTER);
 				field[j][i].setFont(font);
 				field[j][i].setOpaque(true);
-				field[j][i].setText("Hallo");
-				field[j][i].setForeground(Color.black);
 				this.add(field[j][i]);
 				if (player != null)
 					field[j][i].addMouseListener(this);

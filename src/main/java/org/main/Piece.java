@@ -48,4 +48,40 @@ public enum Piece {
 			default -> false;
 		};
 	}
+
+	public char toFenChar() {
+		return switch (this) {
+			case WhiteKing -> 'K';
+			case WhiteQueen -> 'Q';
+			case WhiteRook -> 'R';
+			case WhiteBishop -> 'B';
+			case WhiteKnight -> 'N';
+			case WhitePawn -> 'P';
+			case BlackKing -> 'k';
+			case BlackQueen -> 'q';
+			case BlackRook -> 'r';
+			case BlackBishop -> 'b';
+			case BlackKnight -> 'n';
+			case BlackPawn -> 'p';
+			default -> ' ';
+		};
+	}
+
+	public static Piece fenCharToPiece(char c) {
+		return switch (c) {
+			case 'K'-> WhiteKing;
+			case 'Q'-> WhiteQueen;
+			case 'R'-> WhiteRook;
+			case 'B'-> WhiteBishop;
+			case 'N'-> WhiteKnight;
+			case 'P'-> WhitePawn;
+			case 'k'-> BlackKing;
+			case 'q'-> BlackQueen;
+			case 'r'-> BlackRook;
+			case 'b'-> BlackBishop;
+			case 'n'-> BlackKnight;
+			case 'p'-> BlackPawn;
+			default -> None;
+		};
+	}
 }

@@ -2,41 +2,62 @@ package org.main;
 
 import org.main.pieces.*;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Board {
+	public static final String STARTING_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
 	Piece[][] board = new Piece[8][8];
+	boolean isWhitesTurn;
+	boolean KC = true;
+	boolean QC = true;
+	boolean kC = true;
+	boolean qC = true;
+	char entpassentFile = '-';
+	int lastCommitment = 0;
+	int moveNumber = 0;
 
-	public Board() {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				board[i][j] = Piece.None;
+	public Board(String fen) {
+		for (int r = 0; r < 8; r++) {
+			for (int f = 0; f < 8; f++) {
+				board[f][r] = Piece.None;
 			}
-			board[i][1] = Piece.WhitePawn;
-			board[i][6] = Piece.BlackPawn;
 		}
-		board[0][0] = Piece.WhiteRook;
-		board[7][0] = Piece.WhiteRook;
-		board[0][7] = Piece.BlackRook;
-		board[7][7] = Piece.BlackRook;
 
-		board[1][0] = Piece.WhiteKnight;
-		board[6][0] = Piece.WhiteKnight;
-		board[1][7] = Piece.BlackKnight;
-		board[6][7] = Piece.BlackKnight;
+		String[] parts = fen.split(" ");
+		if (parts.length != 6) {
+			throw new IllegalArgumentException("The FEN-String \"" + fen + "\" is not supported. parts.length != 6");
+		}
+		String[] rows = parts[0].split("/");
+		if (rows.length != 8) {
+			throw new IllegalArgumentException("The FEN-String \"" + fen + "\" is not supported. rows.length != 8");
+		}
+		Collections.reverse(Arrays.asList(rows));
 
-		board[2][0] = Piece.WhiteBishop;
-		board[5][0] = Piece.WhiteBishop;
-		board[2][7] = Piece.BlackBishop;
-		board[5][7] = Piece.BlackBishop;
+		for (int r = 0; r < 8; r++) {
+			for (int f = 0; f < 8; f++) {
+				char c = rows[r].charAt(f);
+				Piece piece = Piece.fenCharToPiece(c);
+				if (piece == Piece.None) {
+					f += Integer.parseInt(c + "") - 1;
+				} else {
+					board[f][r] = piece;
+				}
+			}
+		}
+		isWhitesTurn = parts[1].equals("w");
 
-		board[3][0] = Piece.WhiteQueen;
-		board[4][0] = Piece.WhiteKing;
-		board[3][7] = Piece.BlackQueen;
-		board[4][7] = Piece.BlackKing;
+		KC = parts[2].contains("K");
+		QC = parts[2].contains("Q");
+		kC = parts[2].contains("k");
+		qC = parts[2].contains("q");
+
+		entpassentFile = parts[3].charAt(0);
+
+		lastCommitment = Integer.parseInt(parts[4]);
+
+		moveNumber = Integer.parseInt(parts[5]);
 	}
-
 
 	public Piece getPiece(Position position) {
 		return board[position.fileIndex()][position.rankIndex()];
@@ -54,22 +75,17 @@ public class Board {
 		};
 	}
 
-	LinkedList<Move> getAllMoves(){
+	LinkedList<Move> getAllMoves() {
 		LinkedList<Move> moves = new LinkedList<Move>();
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
-				moves.addAll(getMoves(new Position(i,j)));
+				moves.addAll(getMoves(new Position(i, j)));
 			}
 		}
 		return moves;
 	}
 
-
-	public Board(String fen) {
-		throw new UnsupportedOperationException("Board::Board(String fen) is not yet implemented");
-	}
-
-	boolean isValid(Move move){
+	boolean isValid(Move move) {
 		return getAllMoves().contains(move);
 	}
 
