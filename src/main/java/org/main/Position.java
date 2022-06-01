@@ -12,4 +12,11 @@ public record Position(int fileIndex, int rankIndex) {
 	boolean isOnBoard() {
 		return fileIndex >= 0 && fileIndex <= 7 && rankIndex >= 0 && rankIndex <= 7;
 	}
+
+	Position nextInBoardIteration(){
+		if(rankIndex+1<=7){
+			return new Position(fileIndex,rankIndex+1);
+		}
+		return new Position(fileIndex+1,0);
+	}
 }

@@ -146,7 +146,20 @@ public class Board {
 	}
 
 	boolean isCheck(boolean white) {
-		//throw new UnsupportedOperationException("Board::isCheck is not yet implemented");
+		Position kingPos = new Position(0,0);
+		Piece searchingFor = white ? Piece.WhiteKing:Piece.BlackKing;
+		while(!getPiece(kingPos).equals(searchingFor)){
+			kingPos = kingPos.nextInBoardIteration();
+			if(!kingPos.isOnBoard()){
+				return false;
+			}
+		}
+
+		for(Position dir : MovesGenerator.straightDirections){
+			Position currentPos = kingPos.add(dir);
+
+		}
+
 		return false;
 	}
 

@@ -7,16 +7,16 @@ import static java.lang.Math.abs;
 
 public class MovesGenerator {
 
-	private final static List<Position> allDirections = List.of(
+	final static List<Position> allDirections = List.of(
 			new Position(-1, 1), new Position(0, 1), new Position(1, 1),
 			new Position(-1, 0),/*new Position(      0,         0),*/ new Position(1, 0),
 			new Position(-1, -1), new Position(0, -1), new Position(1, -1));
 
-	private final static List<Position> straightDirections = List.of(new Position(0, 1), new Position(-1, 0), new Position(1, 0), new Position(0, -1));
+	final static List<Position> straightDirections = List.of(new Position(0, 1), new Position(-1, 0), new Position(1, 0), new Position(0, -1));
 
-	private final static List<Position> diagonalDirections = List.of(new Position(-1, 1), new Position(1, 1), new Position(-1, -1), new Position(1, -1));
+	final static List<Position> diagonalDirections = List.of(new Position(-1, 1), new Position(1, 1), new Position(-1, -1), new Position(1, -1));
 
-	private final static List<Position> knightDirections = List.of(
+	final static List<Position> knightDirections = List.of(
 			new Position(-1, 2), new Position(1, 2),
 			new Position(-2, 1), new Position(2, 1),
 			new Position(-2, -1), new Position(2, -1),
@@ -64,12 +64,18 @@ public class MovesGenerator {
 		Position currentPos = position.add(new Position(0, dir));
 		if (currentPos.isOnBoard()) {
 			if (board.getPiece(currentPos).isNone()) {
-				moves.add(new Move(position, currentPos));
+				Move temp = new Move(position, currentPos);
+				if(!isCheckAfter(board, temp)) {
+					moves.add(temp);
+				}
 
 				currentPos = position.add(new Position(0, 2 * dir));
 				if (position.rankIndex() == pawnBaseRank) {
 					if (board.getPiece(currentPos).isNone()) {
-						moves.add(new Move(position, currentPos));
+						temp = new Move(position, currentPos);
+						if(!isCheckAfter(board, temp)) {
+							moves.add(temp);
+						}
 					}
 				}
 			}
@@ -77,19 +83,28 @@ public class MovesGenerator {
 		currentPos = position.add(new Position(-1, dir));
 		if (currentPos.isOnBoard()) {
 			if (board.getPiece(currentPos).isOpponentOf(movingPiece)) {
-				moves.add(new Move(position, currentPos));
+				Move temp = new Move(position, currentPos);
+				if(!isCheckAfter(board, temp)) {
+					moves.add(temp);
+				}
 			}
 		}
 		currentPos = position.add(new Position(1, dir));
 		if (currentPos.isOnBoard()) {
 			if (board.getPiece(currentPos).isOpponentOf(movingPiece)) {
-				moves.add(new Move(position, currentPos));
+				Move temp = new Move(position, currentPos);
+				if(!isCheckAfter(board, temp)) {
+					moves.add(temp);
+				}
 			}
 		}
 
 
 		if (abs(board.entpassentFile - 'a' - position.fileIndex()) == 1 && position.rankIndex() == entPassentRank) {
-			moves.add(new Move(position, new Position(board.entpassentFile - 'a', entPassentRank + dir)));
+			Move temp = new Move(position, new Position(board.entpassentFile - 'a', entPassentRank + dir));
+			if(!isCheckAfter(board, temp)) {
+				moves.add(temp);
+			}
 		}
 
 		return moves;
@@ -104,14 +119,23 @@ public class MovesGenerator {
 			Position currentPos = position.add(dir);
 			for (int d = 1; d <= maximumNumberOfTimes && currentPos.isOnBoard(); currentPos = currentPos.add(dir), d++) {
 				if (board.getPiece(currentPos).isNone()) {
-					moves.add(new Move(position, currentPos));
+					Move temp = new Move(position, currentPos);
+					if(!isCheckAfter(board, temp)) {
+						moves.add(temp);
+					}
 					continue;
 				}
 				if (movingPiece.isOpponentOf(board.getPiece(currentPos))) {
-					moves.add(new Move(position, currentPos));
+					Move temp = new Move(position, currentPos);
+					if(!isCheckAfter(board, temp)) {
+						moves.add(temp);
+					}
 				}
 				break;
 			}
 		}
+	}
+	private static boolean isCheckAfter(Board board, Move move){
+		return board.move(move).isCheck(board.isWhitesTurn);
 	}
 }

@@ -57,6 +57,10 @@ public enum Piece {
 		return this.equals(Piece.WhitePawn) || this.equals(Piece.BlackPawn);
 	}
 
+	public boolean isKing() {
+		return this.equals(Piece.WhiteKing) || this.equals(Piece.BlackKing);
+	}
+
 	public boolean isNone() {
 		return this.equals(Piece.None);
 	}
