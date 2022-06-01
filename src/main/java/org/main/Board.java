@@ -99,7 +99,7 @@ public class Board {
 			lastCommitment = 0;
 		}
 
-		// TODO Entpassent and Castling
+		// TODO Entpassent and Castling and Pawn-Promotion
 
 		this.setPiece(to, this.getPiece(from));
 		this.setPiece(from, Piece.None);
