@@ -35,7 +35,7 @@ public class Board {
 		Collections.reverse(Arrays.asList(rows));
 
 		for (int r = 0; r < 8; r++) {
-			for (int f = 0; f < 8; f++) {
+			for (int f = 0; f < rows[r].length(); f++) {
 				char c = rows[r].charAt(f);
 				Piece piece = Piece.fenCharToPiece(c);
 				if (piece == Piece.None) {
