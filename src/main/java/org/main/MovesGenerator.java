@@ -25,7 +25,9 @@ public class MovesGenerator {
 	public static LinkedList<Move> getKingMoves(Board board, Position position) {
 		LinkedList<Move> moves = new LinkedList<>();
 		addDirectionMoves(board, position, moves, allDirections, 1);
+
 		// TODO Castling
+
 		return moves;
 	}
 

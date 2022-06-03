@@ -16,6 +16,7 @@ public class Board {
 	char entpassentFile = '-';
 	int lastCommitment = 0;
 	int moveNumber = 0;
+	Piece promotion = Piece.WhiteQueen;
 
 	public Board(String fen) {
 		for (int r = 0; r < 8; r++) {
@@ -35,12 +36,18 @@ public class Board {
 		Collections.reverse(Arrays.asList(rows));
 
 		for (int r = 0; r < 8; r++) {
+			rows[r] = rows[r].replaceAll("1","_");
+			rows[r] = rows[r].replaceAll("2","__");
+			rows[r] = rows[r].replaceAll("3","___");
+			rows[r] = rows[r].replaceAll("4","____");
+			rows[r] = rows[r].replaceAll("5","_____");
+			rows[r] = rows[r].replaceAll("6","______");
+			rows[r] = rows[r].replaceAll("7","_______");
+			rows[r] = rows[r].replaceAll("8","________");
 			for (int f = 0; f < rows[r].length(); f++) {
 				char c = rows[r].charAt(f);
 				Piece piece = Piece.fenCharToPiece(c);
-				if (piece == Piece.None) {
-					f += Integer.parseInt(c + "") - 1;
-				} else {
+				if (!piece.isNone()) {
 					board[f][r] = piece;
 				}
 			}
@@ -99,14 +106,36 @@ public class Board {
 			lastCommitment = 0;
 		}
 
-		// TODO Entpassent and Castling and Pawn-Promotion
+		if (targetedPiece.isNone() && movedPiece.isPawn() && to.fileIndex() != from.fileIndex()) {
+			this.setPiece(new Position(to.fileIndex(), from.rankIndex()), Piece.None);
+		}
+
+		int castlingRank = movedPiece.isWhite() ? 0 : 7;
+		if (movedPiece.isKing() && abs(from.fileIndex() - to.fileIndex()) == 2) {
+			int rookToFile = (from.fileIndex() + to.fileIndex()) / 2;
+			int rookFromFile = Math.round(to.fileIndex() / (float) from.fileIndex()) * 7;
+			this.setPiece(new Position(rookToFile, castlingRank), this.getPiece(new Position(rookFromFile, castlingRank)));
+			this.setPiece(new Position(rookFromFile, castlingRank), Piece.None);
+		}
 
 		this.setPiece(to, this.getPiece(from));
 		this.setPiece(from, Piece.None);
+
+		int pawnPromotionRank = movedPiece.isWhite() ? 7 : 0;
+		if (movedPiece.isPawn() && to.rankIndex() == pawnPromotionRank) {
+			Piece promotion = this.promotion.getPieceWithColor(movedPiece.isWhite());
+			this.setPiece(to, promotion);
+		}
 	}
 
 	public Piece getPiece(Position position) {
 		return board[position.fileIndex()][position.rankIndex()];
+	}
+
+	public Piece getPieceOrNone(Position position) {
+		if (position.isOnBoard())
+			return board[position.fileIndex()][position.rankIndex()];
+		return Piece.None;
 	}
 
 	public void setPiece(Position position, Piece piece) {
@@ -125,7 +154,7 @@ public class Board {
 		};
 	}
 
-	LinkedList<Move> getAllMoves() {
+	public LinkedList<Move> getAllMoves() {
 		LinkedList<Move> moves = new LinkedList<Move>();
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -141,23 +170,71 @@ public class Board {
 		return new Board(this, move);
 	}
 
-	boolean isValid(Move move) {
+	public boolean isValid(Move move) {
 		return getAllMoves().contains(move);
 	}
 
 	boolean isCheck(boolean white) {
-		Position kingPos = new Position(0,0);
-		Piece searchingFor = white ? Piece.WhiteKing:Piece.BlackKing;
-		while(!getPiece(kingPos).equals(searchingFor)){
+		Position kingPos = new Position(0, 0);
+		Piece king = white ? Piece.WhiteKing : Piece.BlackKing;
+		while (!getPiece(kingPos).equals(king)) {
 			kingPos = kingPos.nextInBoardIteration();
-			if(!kingPos.isOnBoard()){
+			if (!kingPos.isOnBoard()) {
 				return false;
 			}
 		}
+		return isAttacked(kingPos, !white);
+	}
 
-		for(Position dir : MovesGenerator.straightDirections){
-			Position currentPos = kingPos.add(dir);
+	boolean isAttacked(Position targetPos, boolean aggressorColor) {
+		int aggressivePawnDir = aggressorColor ? 1 : -1;
+		Position currentPos = targetPos.add(new Position(-1, -aggressivePawnDir));
+		if (getPieceOrNone(currentPos).isColor(aggressorColor) && getPieceOrNone(currentPos).isPawn()) {
+			return true;
+		}
+		currentPos = targetPos.add(new Position(1, -aggressivePawnDir));
+		if (getPieceOrNone(currentPos).isColor(aggressorColor) && getPieceOrNone(currentPos).isPawn()) {
+			return true;
+		}
 
+
+		for (Position dir : MovesGenerator.straightDirections) {
+			currentPos = targetPos.add(dir);
+			if (getPieceOrNone(currentPos).isKing() && getPieceOrNone(currentPos).isColor(aggressorColor)) {
+				return true;
+			}
+
+			for (int d = 1; currentPos.isOnBoard(); currentPos = currentPos.add(dir), d++) {
+				Piece piece = getPiece(currentPos);
+				if (piece.walksStraight() && piece.isColor(aggressorColor)) {
+					return true;
+				}
+				if (!piece.isNone()) {
+					break;
+				}
+			}
+		}
+		for (Position dir : MovesGenerator.diagonalDirections) {
+			currentPos = targetPos.add(dir);
+			if (getPieceOrNone(currentPos).isKing() && getPieceOrNone(currentPos).isColor(aggressorColor)) {
+				return true;
+			}
+
+			for (int d = 1; currentPos.isOnBoard(); currentPos = currentPos.add(dir), d++) {
+				Piece piece = getPiece(currentPos);
+				if (piece.walksDiagonal() && piece.isColor(aggressorColor)) {
+					return true;
+				}
+				if (!piece.isNone()) {
+					break;
+				}
+			}
+		}
+		for (Position dir : MovesGenerator.knightDirections) {
+			Piece piece = getPieceOrNone(targetPos.add(dir));
+			if (piece.isKnight() && piece.isColor(aggressorColor)) {
+				return true;
+			}
 		}
 
 		return false;

@@ -66,7 +66,7 @@ public class BoardDisplay extends JPanel implements IBoardDisplay, MouseListener
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
 				if (field[x][y].equals(e.getComponent())) {
-					player.setLastClickLocation(x, y);
+					player.set(x, 7-y);
 					return;
 				}
 			}
@@ -74,18 +74,12 @@ public class BoardDisplay extends JPanel implements IBoardDisplay, MouseListener
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
-	}
+	public void mouseReleased(MouseEvent e) {}
 
 	@Override
-	public void mouseReleased(MouseEvent e) {
-	}
-
+	public void mouseClicked(MouseEvent e) {}
 	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
+	public void mouseEntered(MouseEvent e) {}
 	@Override
-	public void mouseExited(MouseEvent e) {
-	}
+	public void mouseExited(MouseEvent e) {}
 }

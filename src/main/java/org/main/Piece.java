@@ -53,16 +53,57 @@ public enum Piece {
 		return this.isWhite() && other.isBlack() || this.isBlack() && other.isWhite();
 	}
 
+	public boolean isColor(boolean white) {
+		return this.isWhite() && white || this.isBlack() && !white;
+	}
+
+	public boolean walksDiagonal() { return this.isQueen() || this.isBishop(); }
+	public boolean walksStraight() { return this.isQueen() || this.isRook(); }
+
+	public boolean isNone() {
+		return this.equals(Piece.None);
+	}
 	public boolean isPawn() {
 		return this.equals(Piece.WhitePawn) || this.equals(Piece.BlackPawn);
 	}
-
+	public boolean isKnight() {
+		return this.equals(Piece.WhiteKnight) || this.equals(Piece.BlackKnight);
+	}
+	public boolean isBishop() {
+		return this.equals(Piece.WhiteBishop) || this.equals(Piece.BlackBishop);
+	}
+	public boolean isRook() {
+		return this.equals(Piece.WhiteRook) || this.equals(Piece.BlackRook);
+	}
+	public boolean isQueen() {
+		return this.equals(Piece.WhiteQueen) || this.equals(Piece.BlackQueen);
+	}
 	public boolean isKing() {
 		return this.equals(Piece.WhiteKing) || this.equals(Piece.BlackKing);
 	}
 
-	public boolean isNone() {
-		return this.equals(Piece.None);
+	public Piece getWithOppositeColor() {
+		return switch (this){
+			case None -> None;
+			case WhiteKing -> BlackKing;
+			case WhiteQueen -> BlackQueen;
+			case WhiteRook -> BlackRook;
+			case WhiteBishop -> BlackBishop;
+			case WhiteKnight -> BlackKnight;
+			case WhitePawn -> BlackPawn;
+			case BlackKing -> WhiteKing;
+			case BlackQueen -> WhiteQueen;
+			case BlackRook -> WhiteRook;
+			case BlackBishop -> WhiteBishop;
+			case BlackKnight -> WhiteKnight;
+			case BlackPawn -> WhitePawn;
+		};
+	}
+	public Piece getPieceWithColor(boolean white) {
+		if(this.isWhite() == white){
+			return this;
+		}
+		return getWithOppositeColor();
 	}
 
 	public char toFenChar() {

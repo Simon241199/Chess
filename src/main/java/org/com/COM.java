@@ -2,11 +2,17 @@ package org.com;
 
 import org.main.Board;
 import org.main.Move;
-import org.main.Moveable;
+import org.main.Movable;
 
-public class COM implements Moveable {
+import java.util.Collections;
+import java.util.LinkedList;
+
+public class COM implements Movable {
 	@Override
 	public Move getMove(Board board) {
-		return null;
+		LinkedList<Move> allMoves = board.getAllMoves();
+		Collections.shuffle(allMoves);
+
+		return allMoves.getFirst();
 	}
 }
