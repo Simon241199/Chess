@@ -245,6 +245,34 @@ public class Board {
 		return false;
 	}
 
+	static long hashInts(int a, int b) {
+		if(a*b==0){
+			a = -198074;
+			b = -403895;
+		}
+		long expr1 = 3482530L * a + 9294010L * b + a * b * 9782345L + (long)((a-b)/(double)(a+b)*1234.5);
+		long expr2 = 9573812L * a + 7892662L * b + a * b * 6589340L + (long)((a-b)/(double)(a+b)*9876.5);
+		long expr3 = 1938676L * a + 2348575L * b + a * b * 5894323L + (long)((a-b)/(double)(a+b)*1010.1);
+		long expr4 = 3456782L * a + 7658943L * b + a * b * 1289045L + (long)((a-b)/(double)(a+b)*1729.3);
+		return expr1 >> 48 ^ expr2 >> 32 ^ expr3 >> 16 ^ expr4;
+	}
+
+	public long hash() {
+		long hash = 0;
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				hash ^= hashInts(board[i][j].hashCode(), i + 8 * j);
+			}
+		}
+		hash ^= hashInts(Boolean.hashCode(this.isWhitesTurn), 65);
+		hash ^= hashInts(Boolean.hashCode(this.KC), 66);
+		hash ^= hashInts(Boolean.hashCode(this.kC), 67);
+		hash ^= hashInts(Boolean.hashCode(this.QC), 68);
+		hash ^= hashInts(Boolean.hashCode(this.qC), 69);
+		hash ^= hashInts(Character.hashCode(this.entpassentFile), 70);
+		return hash;
+	}
+
 	String getFen() {
 		throw new UnsupportedOperationException("Board::getFen is not yet implemented");
 	}

@@ -141,4 +141,20 @@ public enum Piece {
 			default -> None;
 		};
 	}
+
+	public int getValue() {
+		return switch (this) {
+			case WhiteQueen -> 9;
+			case WhiteRook -> 5;
+			case WhiteBishop -> 3;
+			case WhiteKnight -> 3;
+			case WhitePawn -> 1;
+			case BlackQueen -> -9;
+			case BlackRook -> -5;
+			case BlackBishop -> -3;
+			case BlackKnight -> -3;
+			case BlackPawn -> -1;
+			default -> 0;
+		};
+	}
 }
