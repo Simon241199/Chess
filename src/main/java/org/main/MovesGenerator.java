@@ -26,7 +26,32 @@ public class MovesGenerator {
 		LinkedList<Move> moves = new LinkedList<>();
 		addDirectionMoves(board, position, moves, allDirections, 1);
 
-		// TODO Castling
+		boolean kingSideAllowed = board.isWhitesTurn() ? board.KC : board.kC;
+		boolean queenSideAllowed = board.isWhitesTurn() ? board.QC : board.qC;
+
+		if (kingSideAllowed) {
+			Position kingPassingSquare = position.add(new Position(1, 0));
+			Position toSquare = position.add(new Position(2, 0));
+			if(board.getPiece(kingPassingSquare).isNone() && board.getPiece(toSquare).isNone()) {
+				if (!board.isAttacked(position, !board.isWhitesTurn())
+						&& !board.isAttacked(kingPassingSquare, !board.isWhitesTurn())
+						&& !board.isAttacked(toSquare, !board.isWhitesTurn())) {
+					moves.add(new Move(position, toSquare));
+				}
+			}
+		}
+		if (queenSideAllowed) {
+			Position kingPassingSquare = position.add(new Position(-1, 0));
+			Position toSquare = position.add(new Position(-2, 0));
+			Position rookPassingSquare = position.add(new Position(-3, 0));
+			if(board.getPiece(kingPassingSquare).isNone() && board.getPiece(toSquare).isNone() && board.getPiece(rookPassingSquare).isNone()) {
+				if (!board.isAttacked(position, !board.isWhitesTurn())
+						&& !board.isAttacked(kingPassingSquare, !board.isWhitesTurn())
+						&& !board.isAttacked(toSquare, !board.isWhitesTurn())) {
+					moves.add(new Move(position, toSquare));
+				}
+			}
+		}
 
 		return moves;
 	}
@@ -58,16 +83,16 @@ public class MovesGenerator {
 	public static LinkedList<Move> getPawnMoves(Board board, Position position) {
 		LinkedList<Move> moves = new LinkedList<>();
 
-		int dir = (board.isWhitesTurn ? 1 : -1);
-		int pawnBaseRank = (board.isWhitesTurn ? 1 : 6);
-		Piece movingPiece = (board.isWhitesTurn ? Piece.WhitePawn : Piece.BlackPawn);
-		int entPassentRank = (board.isWhitesTurn ? 4 : 3);
+		int dir = (board.isWhitesTurn() ? 1 : -1);
+		int pawnBaseRank = (board.isWhitesTurn() ? 1 : 6);
+		Piece movingPiece = (board.isWhitesTurn() ? Piece.WhitePawn : Piece.BlackPawn);
+		int entPassentRank = (board.isWhitesTurn() ? 4 : 3);
 
 		Position currentPos = position.add(new Position(0, dir));
 		if (currentPos.isOnBoard()) {
 			if (board.getPiece(currentPos).isNone()) {
 				Move temp = new Move(position, currentPos);
-				if(!isCheckAfter(board, temp)) {
+				if (!isCheckAfter(board, temp)) {
 					moves.add(temp);
 				}
 
@@ -75,7 +100,7 @@ public class MovesGenerator {
 				if (position.rankIndex() == pawnBaseRank) {
 					if (board.getPiece(currentPos).isNone()) {
 						temp = new Move(position, currentPos);
-						if(!isCheckAfter(board, temp)) {
+						if (!isCheckAfter(board, temp)) {
 							moves.add(temp);
 						}
 					}
@@ -86,7 +111,7 @@ public class MovesGenerator {
 		if (currentPos.isOnBoard()) {
 			if (board.getPiece(currentPos).isOpponentOf(movingPiece)) {
 				Move temp = new Move(position, currentPos);
-				if(!isCheckAfter(board, temp)) {
+				if (!isCheckAfter(board, temp)) {
 					moves.add(temp);
 				}
 			}
@@ -95,7 +120,7 @@ public class MovesGenerator {
 		if (currentPos.isOnBoard()) {
 			if (board.getPiece(currentPos).isOpponentOf(movingPiece)) {
 				Move temp = new Move(position, currentPos);
-				if(!isCheckAfter(board, temp)) {
+				if (!isCheckAfter(board, temp)) {
 					moves.add(temp);
 				}
 			}
@@ -104,7 +129,7 @@ public class MovesGenerator {
 
 		if (abs(board.entpassentFile - 'a' - position.fileIndex()) == 1 && position.rankIndex() == entPassentRank) {
 			Move temp = new Move(position, new Position(board.entpassentFile - 'a', entPassentRank + dir));
-			if(!isCheckAfter(board, temp)) {
+			if (!isCheckAfter(board, temp)) {
 				moves.add(temp);
 			}
 		}
@@ -113,23 +138,20 @@ public class MovesGenerator {
 	}
 
 	private static void addDirectionMoves(Board board, Position position, LinkedList<Move> moves, List<Position> directions, int maximumNumberOfTimes) {
-		Piece movingPiece = board.getPiece(position);
-		if (movingPiece.isNone())
-			throw new UnsupportedOperationException("addDirectionMoves an Position muss das Piece stehen, da sonst dessen Farbe unbekannt ist.");
-
 		for (Position dir : directions) {
 			Position currentPos = position.add(dir);
 			for (int d = 1; d <= maximumNumberOfTimes && currentPos.isOnBoard(); currentPos = currentPos.add(dir), d++) {
-				if (board.getPiece(currentPos).isNone()) {
+				Piece currentPiece = board.getPiece(currentPos);
+				if (currentPiece.isNone()) {
 					Move temp = new Move(position, currentPos);
-					if(!isCheckAfter(board, temp)) {
+					if (!isCheckAfter(board, temp)) {
 						moves.add(temp);
 					}
 					continue;
 				}
-				if (movingPiece.isOpponentOf(board.getPiece(currentPos))) {
+				if (currentPiece.isColor(!board.isWhitesTurn())) {
 					Move temp = new Move(position, currentPos);
-					if(!isCheckAfter(board, temp)) {
+					if (!isCheckAfter(board, temp)) {
 						moves.add(temp);
 					}
 				}
@@ -137,7 +159,8 @@ public class MovesGenerator {
 			}
 		}
 	}
-	private static boolean isCheckAfter(Board board, Move move){
-		return board.move(move).isCheck(board.isWhitesTurn);
+
+	private static boolean isCheckAfter(Board board, Move move) {
+		return board.move(move).isCheck(board.isWhitesTurn());
 	}
 }

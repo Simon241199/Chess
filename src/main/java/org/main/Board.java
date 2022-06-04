@@ -8,7 +8,12 @@ public class Board {
 	public static final String STARTING_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 	Piece[][] board = new Piece[8][8];
-	boolean isWhitesTurn;
+
+	public boolean isWhitesTurn() {
+		return isWhitesTurn;
+	}
+
+	private boolean isWhitesTurn;
 	boolean KC = true;
 	boolean QC = true;
 	boolean kC = true;
@@ -36,14 +41,14 @@ public class Board {
 		Collections.reverse(Arrays.asList(rows));
 
 		for (int r = 0; r < 8; r++) {
-			rows[r] = rows[r].replaceAll("1","_");
-			rows[r] = rows[r].replaceAll("2","__");
-			rows[r] = rows[r].replaceAll("3","___");
-			rows[r] = rows[r].replaceAll("4","____");
-			rows[r] = rows[r].replaceAll("5","_____");
-			rows[r] = rows[r].replaceAll("6","______");
-			rows[r] = rows[r].replaceAll("7","_______");
-			rows[r] = rows[r].replaceAll("8","________");
+			rows[r] = rows[r].replaceAll("1", "_");
+			rows[r] = rows[r].replaceAll("2", "__");
+			rows[r] = rows[r].replaceAll("3", "___");
+			rows[r] = rows[r].replaceAll("4", "____");
+			rows[r] = rows[r].replaceAll("5", "_____");
+			rows[r] = rows[r].replaceAll("6", "______");
+			rows[r] = rows[r].replaceAll("7", "_______");
+			rows[r] = rows[r].replaceAll("8", "________");
 			for (int f = 0; f < rows[r].length(); f++) {
 				char c = rows[r].charAt(f);
 				Piece piece = Piece.fenCharToPiece(c);
@@ -85,16 +90,16 @@ public class Board {
 		this.lastCommitment = oldBoard.lastCommitment + 1;
 		this.moveNumber = oldBoard.moveNumber + (isWhitesTurn ? 1 : 0);
 
-		if (from.equals(new Position(7, 0)) || from.equals(new Position(3, 0))) {
+		if (from.equals(new Position(7, 0)) || to.equals(new Position(7, 0)) || from.equals(new Position(4, 0))) {
 			this.KC = false;
 		}
-		if (from.equals(new Position(0, 0)) || from.equals(new Position(3, 0))) {
+		if (from.equals(new Position(0, 0)) || to.equals(new Position(0, 0)) || from.equals(new Position(4, 0))) {
 			this.QC = false;
 		}
-		if (from.equals(new Position(7, 7)) || from.equals(new Position(3, 7))) {
+		if (from.equals(new Position(7, 7)) || to.equals(new Position(7, 7)) || from.equals(new Position(4, 7))) {
 			this.kC = false;
 		}
-		if (from.equals(new Position(0, 7)) || from.equals(new Position(3, 7))) {
+		if (from.equals(new Position(0, 7)) || to.equals(new Position(0, 7)) || from.equals(new Position(4, 7))) {
 			this.qC = false;
 		}
 
@@ -113,7 +118,7 @@ public class Board {
 		int castlingRank = movedPiece.isWhite() ? 0 : 7;
 		if (movedPiece.isKing() && abs(from.fileIndex() - to.fileIndex()) == 2) {
 			int rookToFile = (from.fileIndex() + to.fileIndex()) / 2;
-			int rookFromFile = Math.round(to.fileIndex() / (float) from.fileIndex()) * 7;
+			int rookFromFile = (int) Math.floor(to.fileIndex() / (float) from.fileIndex()) * 7;
 			this.setPiece(new Position(rookToFile, castlingRank), this.getPiece(new Position(rookFromFile, castlingRank)));
 			this.setPiece(new Position(rookFromFile, castlingRank), Piece.None);
 		}
@@ -166,7 +171,7 @@ public class Board {
 		return moves;
 	}
 
-	Board move(Move move) {
+	public Board move(Move move) {
 		return new Board(this, move);
 	}
 
@@ -174,7 +179,7 @@ public class Board {
 		return getAllMoves().contains(move);
 	}
 
-	boolean isCheck(boolean white) {
+	public boolean isCheck(boolean white) {
 		Position kingPos = new Position(0, 0);
 		Piece king = white ? Piece.WhiteKing : Piece.BlackKing;
 		while (!getPiece(kingPos).equals(king)) {
