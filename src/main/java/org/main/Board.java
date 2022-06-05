@@ -158,6 +158,17 @@ public class Board {
 			default -> new LinkedList<Move>();
 		};
 	}
+	LinkedList<Move> getCaptures(Position position) {
+		return switch (board[position.fileIndex()][position.rankIndex()]) {
+			case WhiteKing, BlackKing -> MovesGenerator.getKingCaptures(this, position);
+			case WhiteQueen, BlackQueen -> MovesGenerator.getQueenCaptures(this, position);
+			case WhiteRook, BlackRook -> MovesGenerator.getRookCaptures(this, position);
+			case WhiteBishop, BlackBishop -> MovesGenerator.getBishopCaptures(this, position);
+			case WhiteKnight, BlackKnight -> MovesGenerator.getKnightCaptures(this, position);
+			case WhitePawn, BlackPawn -> MovesGenerator.getPawnCaptures(this, position);
+			default -> new LinkedList<Move>();
+		};
+	}
 
 	public LinkedList<Move> getAllMoves() {
 		LinkedList<Move> moves = new LinkedList<Move>();
@@ -169,6 +180,17 @@ public class Board {
 			}
 		}
 		return moves;
+	}
+	public LinkedList<Move> getAllCaptures() {
+		LinkedList<Move> captures = new LinkedList<Move>();
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				Position position = new Position(i, j);
+				if (getPiece(position).isWhite() && isWhitesTurn || getPiece(position).isBlack() && !isWhitesTurn)
+					captures.addAll(getCaptures(new Position(i, j)));
+			}
+		}
+		return captures;
 	}
 
 	public Board move(Move move) {

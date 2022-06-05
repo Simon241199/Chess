@@ -22,7 +22,7 @@ public class SharedTranspositionTable extends HashMap<Long, ScoreDepth> implemen
 
 	@Override
 	public synchronized int getOrNMate(Board board, int minEvalDepth) {
-		ScoreDepth scoreDepth = super.getOrDefault(board.hash(), new ScoreDepth(null, -1));
+		ScoreDepth scoreDepth = super.getOrDefault(board.hash(), new ScoreDepth(null, Integer.MIN_VALUE));
 		if (scoreDepth.remainingDepth() >= minEvalDepth) {
 			/*System.out.println("get " + scoreDepth.score() + ", " + scoreDepth.remainingDepth() + ", " + board.hash());
 			DebugPrinter.print(board);*/

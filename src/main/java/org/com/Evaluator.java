@@ -11,6 +11,7 @@ import static java.lang.Math.max;
 
 public class Evaluator extends Thread {
 	final static int mate = Integer.MAX_VALUE;
+	final static int maxScoreWithoutForcedMate = 1_000_000;
 	private int score;
 	private int maxDepth;
 	private Board board;
@@ -33,13 +34,20 @@ public class Evaluator extends Thread {
 		int transScore = transpositionTable.getOrNMate(board, remainingDepth);
 		if (depth >= maxDepth) {
 			if (transScore == -mate) {
-				return elementaryEvaluation(board);
+				return evaluateCaptures(board, depth, lower, upper);
 			}
 			return transScore;
 		}
 		lower = max(transScore, lower);
 
 		LinkedList<Move> allMoves = board.getAllMoves();
+
+		if(allMoves.size()==0){
+			if(board.isCheck(board.isWhitesTurn())){
+				return -mate + depth;
+			}
+			return 0;
+		}
 
 		boolean updatedLower = false;
 		for (Move move : allMoves) {
@@ -55,6 +63,29 @@ public class Evaluator extends Thread {
 		}
 		if (updatedLower) {
 			transpositionTable.add(board, lower, remainingDepth);
+		}
+		return lower;
+	}
+
+	private int evaluateCaptures(Board board, int depth, int lower, int upper) {
+		int remainingDepth = maxDepth - depth;
+		int transScore = transpositionTable.getOrNMate(board, remainingDepth);
+
+		lower = max(transScore, lower);
+
+		lower = max(elementaryEvaluation(board), lower);
+
+		LinkedList<Move> allCaptures = board.getAllCaptures();
+
+		for (Move move : allCaptures) {
+			int score = -evaluateCaptures(board.move(move), depth + 1, -upper, -lower);
+			if (lower <= score) {
+				lower = score;
+			}
+
+			if (lower >= upper) {
+				break;
+			}
 		}
 		return lower;
 	}
@@ -92,7 +123,7 @@ public class Evaluator extends Thread {
 		int replyMoveCount = board.move(new Move(emptySquare, emptySquare)).getAllMoves().size();
 		float moveRatio = (moveCount - replyMoveCount) / (float) (replyMoveCount + moveCount);
 
-		return (int) ((moveRatio+7*materialRatio) * 100.0/8.0);
+		return (int) ((moveRatio + 11 * materialRatio) * maxScoreWithoutForcedMate / 12.0);
 	}
 
 	public int getScore() {

@@ -32,7 +32,7 @@ public class MovesGenerator {
 		if (kingSideAllowed) {
 			Position kingPassingSquare = position.add(new Position(1, 0));
 			Position toSquare = position.add(new Position(2, 0));
-			if(board.getPiece(kingPassingSquare).isNone() && board.getPiece(toSquare).isNone()) {
+			if (board.getPiece(kingPassingSquare).isNone() && board.getPiece(toSquare).isNone()) {
 				if (!board.isAttacked(position, !board.isWhitesTurn())
 						&& !board.isAttacked(kingPassingSquare, !board.isWhitesTurn())
 						&& !board.isAttacked(toSquare, !board.isWhitesTurn())) {
@@ -44,7 +44,7 @@ public class MovesGenerator {
 			Position kingPassingSquare = position.add(new Position(-1, 0));
 			Position toSquare = position.add(new Position(-2, 0));
 			Position rookPassingSquare = position.add(new Position(-3, 0));
-			if(board.getPiece(kingPassingSquare).isNone() && board.getPiece(toSquare).isNone() && board.getPiece(rookPassingSquare).isNone()) {
+			if (board.getPiece(kingPassingSquare).isNone() && board.getPiece(toSquare).isNone() && board.getPiece(rookPassingSquare).isNone()) {
 				if (!board.isAttacked(position, !board.isWhitesTurn())
 						&& !board.isAttacked(kingPassingSquare, !board.isWhitesTurn())
 						&& !board.isAttacked(toSquare, !board.isWhitesTurn())) {
@@ -160,7 +160,93 @@ public class MovesGenerator {
 		}
 	}
 
+	private static void addDirectionCaptures(Board board, Position position, LinkedList<Move> captures, List<Position> directions, int maximumNumberOfTimes) {
+		for (Position dir : directions) {
+			Position currentPos = position.add(dir);
+			for (int d = 1; d <= maximumNumberOfTimes && currentPos.isOnBoard(); currentPos = currentPos.add(dir), d++) {
+				Piece currentPiece = board.getPiece(currentPos);
+				if (currentPiece.isNone()) {
+					continue;
+				}
+				if (currentPiece.isColor(!board.isWhitesTurn()) && currentPiece.isValuable()) {
+					Move temp = new Move(position, currentPos);
+					if (!isCheckAfter(board, temp)) {
+						captures.add(temp);
+					}
+				}
+				break;
+			}
+		}
+	}
+
 	private static boolean isCheckAfter(Board board, Move move) {
 		return board.move(move).isCheck(board.isWhitesTurn());
+	}
+
+	public static LinkedList<Move> getKingCaptures(Board board, Position position) {
+		LinkedList<Move> captures = new LinkedList<>();
+		addDirectionCaptures(board, position, captures, allDirections, 1);
+		return captures;
+	}
+
+	public static LinkedList<Move> getQueenCaptures(Board board, Position position) {
+		LinkedList<Move> captures = new LinkedList<>();
+		addDirectionCaptures(board, position, captures, allDirections, 10);
+		return captures;
+	}
+
+	public static LinkedList<Move> getRookCaptures(Board board, Position position) {
+		LinkedList<Move> captures = new LinkedList<>();
+		addDirectionCaptures(board, position, captures, straightDirections, 10);
+		return captures;
+	}
+
+	public static LinkedList<Move> getBishopCaptures(Board board, Position position) {
+		LinkedList<Move> captures = new LinkedList<>();
+		addDirectionCaptures(board, position, captures, diagonalDirections, 10);
+		return captures;
+	}
+
+	public static LinkedList<Move> getKnightCaptures(Board board, Position position) {
+		LinkedList<Move> captures = new LinkedList<>();
+		addDirectionCaptures(board, position, captures, knightDirections, 1);
+		return captures;
+	}
+
+	public static LinkedList<Move> getPawnCaptures(Board board, Position position) {
+		LinkedList<Move> captures = new LinkedList<>();
+
+		int dir = (board.isWhitesTurn() ? 1 : -1);
+		Piece movingPiece = (board.isWhitesTurn() ? Piece.WhitePawn : Piece.BlackPawn);
+		int entPassentRank = (board.isWhitesTurn() ? 4 : 3);
+
+		Position currentPos = position.add(new Position(-1, dir));
+		if (currentPos.isOnBoard()) {
+			if (board.getPiece(currentPos).isOpponentOf(movingPiece)) {
+				Move temp = new Move(position, currentPos);
+				if (!isCheckAfter(board, temp)) {
+					captures.add(temp);
+				}
+			}
+		}
+		currentPos = position.add(new Position(1, dir));
+		if (currentPos.isOnBoard()) {
+			if (board.getPiece(currentPos).isOpponentOf(movingPiece)) {
+				Move temp = new Move(position, currentPos);
+				if (!isCheckAfter(board, temp)) {
+					captures.add(temp);
+				}
+			}
+		}
+
+
+		if (abs(board.entpassentFile - 'a' - position.fileIndex()) == 1 && position.rankIndex() == entPassentRank) {
+			Move temp = new Move(position, new Position(board.entpassentFile - 'a', entPassentRank + dir));
+			if (!isCheckAfter(board, temp)) {
+				captures.add(temp);
+			}
+		}
+
+		return captures;
 	}
 }

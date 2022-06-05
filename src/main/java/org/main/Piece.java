@@ -106,6 +106,10 @@ public enum Piece {
 		return getWithOppositeColor();
 	}
 
+	public boolean isValuable(){
+		return !(this.isPawn() || this.isNone());
+	}
+
 	public char toFenChar() {
 		return switch (this) {
 			case WhiteKing -> 'K';

@@ -22,6 +22,8 @@ public class Main {
 			Move move = contestants[i%2].getMove(board);
 			board = board.move(move);
 		}
+		window.getIBoardDisplay().display(board, false);
+		Thread.sleep(5000);
 		window.close();
 	}
 }
