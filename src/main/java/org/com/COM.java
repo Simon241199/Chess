@@ -12,7 +12,7 @@ import java.util.LinkedList;
 public class COM implements Movable {
 
 	ISharedTranspositionTable transpositionTable = new SharedTranspositionTable();
-	public int maxDepth = 3;
+	public int maxDuration = 1_000;
 
 	@Override
 	public Move getMove(Board board) {
@@ -21,6 +21,8 @@ public class COM implements Movable {
 		LinkedList<Move> allMoves = board.getAllMoves();
 		Move bestMove;
 		int depth = 0;
+		long start = System.currentTimeMillis();
+		long duration;
 		do{
 
 			bestMove = new Move(new Position(0, 0), new Position(0, 0));
@@ -49,7 +51,8 @@ public class COM implements Movable {
 				throw new RuntimeException(e);
 			}
 			depth++;
-		}while(depth<maxDepth);
+			duration = System.currentTimeMillis()-start;
+		}while(duration<= maxDuration);
 
 		return bestMove;
 	}
