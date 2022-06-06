@@ -4,6 +4,7 @@ import org.main.Board;
 import org.main.Move;
 import org.main.Position;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 import static java.lang.Math.abs;
@@ -40,18 +41,24 @@ public class Evaluator extends Thread {
 		}
 		lower = max(transScore, lower);
 
-		LinkedList<Move> allMoves = board.getAllMoves();
+		LinkedList<Board> allBoards = board.getAllBoards();
 
-		if(allMoves.size()==0){
-			if(board.isCheck(board.isWhitesTurn())){
+		if (allBoards.size() == 0) {
+			if (board.isCheck(board.isWhitesTurn())) {
 				return -mate + depth;
 			}
 			return 0;
 		}
 
+		Collections.sort(
+				allBoards, (board1, board2) ->
+						transpositionTable.getOrDefault(board1, 0,0)
+								- transpositionTable.getOrDefault(board2, 0,0)
+		);
+
 		boolean updatedLower = false;
-		for (Move move : allMoves) {
-			int score = -evaluate(board.move(move), depth + 1, -upper, -lower);
+		for (Board currentBoard : allBoards) {
+			int score = -evaluate(currentBoard, depth + 1, -upper, -lower);
 			if (lower <= score) {
 				updatedLower = true;
 				lower = score;
